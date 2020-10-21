@@ -1,9 +1,11 @@
+const path = require("path");
 const fs = require("fs");
 const util = require("util");
 const inquirer = require("inquirer");
-const markdown = require('./utils/generateMarkdown');
 
-const writeFileAsync = util.promisify(fs.writeFile);
+const generateMarkdown = require("./utils/generateMarkdown");
+
+
 
 
 // array of questions for user
@@ -31,7 +33,7 @@ const questions = [{
     name: "license",
     type: "list",
     message: "please choose your project license: ",
-    choices: ["Mozilla Public License Version 2.0", "Eclipse Public License v1.0", "MIT License"]
+    choices: ["Mozilla Public License Version 2.0", "Eclipse Public License v1.0", "MIT"]
 
 },
 {
@@ -59,17 +61,22 @@ const questions = [{
 ];
 
 // function to write README file
-async function writeToFile(fileName, data) {
-    await writeFileAsync(fileName, data);
+function writeToFile(fileName, data) {
+    return fs.writeFileSync(path.join(process.cwd(), fileName), data)
+
+
 }
 
 // function to initialize program
-async function init() {
-    const userAnswers = await inquirer.prompt(questions);
-    const readmeContent = markdown.generateMarkdown(userAnswers);
-    console.log(readmeContent);
+function init() {
+    inquirer.prompt(questions)
+        .then((inquirerResponses) => {
+            console.log("generateReadMe...")
+            writeToFile("README.md", generateMarkdown({ ...inquirerResponses }))
+        })
 
-    writeToFile("filename.md", readmeContent);
+
+
 }
 
 // function call to initialize program
